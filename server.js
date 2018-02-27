@@ -1,3 +1,8 @@
+const cluster = require('cluster');
+const numCPUs = require('os').cpus().length;
+const domain = require("domain");
+const domain_catch = domain.create();
+
 const net = require('net');
 const fs = require('fs');
 const path = require('path');
@@ -6,6 +11,31 @@ const WebSocket = require('ws');
 const WebSocketServer = WebSocket.Server;
 const parseArgs = require('minimist');
 const { Encryptor } = require('./encrypt');
+
+if (cluster.isMaster) {
+    // for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
+    // }
+
+    cluster.on('exit', function(deadWorker, code, signal) {
+      // Restart the worker
+      let worker = cluster.fork();
+      // Note the process IDs
+      let newPID = worker.process.pid;
+      let oldPID = deadWorker.process.pid;
+      // Log the event
+      // console.log('worker '+oldPID+' died.');
+      // console.log('worker '+newPID+' born.');
+    });
+} else {  
+
+domain_catch.on('error', function(err){
+    console.error("domain error : "+err+"");
+    // console.log("domain message : "+err.message+"");
+    process.exit(0);
+});
+
+domain_catch.run(function(){
 
 const options = {
   alias: {
@@ -61,8 +91,8 @@ const server = http.createServer(function(req, res) {
 const wss = new WebSocketServer({ server });
 
 wss.on('connection', function(ws) {
-  console.log('server connected');
-  console.log('concurrent connections:', wss.clients.size);
+  // console.log('server connected');
+  // console.log('concurrent connections:', wss.clients.size);
   const encryptor = new Encryptor(KEY, METHOD);
   let stage = 0;
   let headerLength = 0;
@@ -99,7 +129,7 @@ wss.on('connection', function(ws) {
 
         // connect remote server
         remote = net.connect(remotePort, remoteAddr, function() {
-          console.log('connecting', remoteAddr);
+          // console.log('connecting', remoteAddr);
           let i = 0;
 
           while (i < cachedPieces.length) {
@@ -119,16 +149,16 @@ wss.on('connection', function(ws) {
 
         remote.on('end', function() {
           ws.close();
-          console.log('remote disconnected');
+          // console.log('remote disconnected');
         });
 
         remote.on('error', function(e) {
           ws.terminate();
-          console.log(`remote: ${e}`);
+          // console.log(`remote: ${e}`);
         });
 
         remote.setTimeout(timeout, function() {
-          console.log('remote timeout');
+          // console.log('remote timeout');
           remote.destroy();
           ws.close();
         });
@@ -161,8 +191,8 @@ wss.on('connection', function(ws) {
   ws.on('ping', () => ws.pong('', null, true));
 
   ws.on('close', function() {
-    console.log('server disconnected');
-    console.log('concurrent connections:', wss.clients.size);
+    // console.log('server disconnected');
+    // console.log('concurrent connections:', wss.clients.size);
     if (remote) {
       remote.destroy();
     }
@@ -170,7 +200,7 @@ wss.on('connection', function(ws) {
 
   ws.on('error', function(e) {
     console.warn(`server: ${e}`);
-    console.log('concurrent connections:', wss.clients.size);
+    // console.log('concurrent connections:', wss.clients.size);
     if (remote) {
       remote.destroy();
     }
@@ -179,12 +209,15 @@ wss.on('connection', function(ws) {
 
 server.listen(PORT, LOCAL_ADDRESS, function() {
   const address = server.address();
-  console.log('server listening at', address);
+  // console.log('server listening at', address);
 });
 
 server.on('error', function(e) {
   if (e.code === 'EADDRINUSE') {
-    console.log('address in use, aborting');
+    // console.log('address in use, aborting');
   }
   process.exit(1);
 });
+
+  }); // domain run                 
+} //cluster
