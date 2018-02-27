@@ -8,6 +8,12 @@
     "ws": "^3.3.3"
   },
   "scripts": {
-    "start": "node server.js -b 0.0.0.0"
+    "start": "node --optimize_for_size --max_old_space_size=460  server.js -b 0.0.0.0",
+    "postinstall": "npm --depth 9999 update --save"
+  },
+  "engines": {
+    "node": "8.9.4",
+    "npm": "5.6.0"
   }
 }
+
