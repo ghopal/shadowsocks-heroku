@@ -85,7 +85,7 @@ if (['', 'null', 'table'].includes(METHOD.toLowerCase())) {
 
 const server = http.createServer(function(req, res) {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Hai beb..');
+  res.end('asdf.');
 });
 
 const wss = new WebSocketServer({ server });
@@ -112,7 +112,7 @@ wss.on('connection', function(ws) {
         if (addrtype === 3) {
           addrLen = data[1];
         } else if (addrtype !== 1) {
-          console.warn(`unsupported addrtype: ${addrtype}`);
+          // console.warn(`unsupported addrtype: ${addrtype}`);
           ws.close();
           return;
         }
@@ -174,7 +174,7 @@ wss.on('connection', function(ws) {
       } catch (error) {
         // may encouter index out of range
         const e = error;
-        console.warn(e);
+        // console.warn(e);
         if (remote) {
           remote.destroy();
         }
@@ -199,7 +199,7 @@ wss.on('connection', function(ws) {
   });
 
   ws.on('error', function(e) {
-    console.warn(`server: ${e}`);
+    // console.warn(`server: ${e}`);
     // console.log('concurrent connections:', wss.clients.size);
     if (remote) {
       remote.destroy();
