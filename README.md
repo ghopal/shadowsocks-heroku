@@ -13,19 +13,12 @@ Heroku
 ### Usage
 
 ```
-$ heroku create
-Creating still-tor-8707... done, stack is cedar-14
-http://still-tor-8707.herokuapp.com/ | git@heroku.com:still-tor-8707.git
-```
-
-Push the code to Heroku.
-
 ```
 $ git push heroku master
 …
 -----> Compressing... done, 5.1MB
 -----> Launching... done, v3
-       http://still-tor-8707.herokuapp.com/ deployed to Heroku
+       http://kucing-garong.herokuapp.com/ deployed to Heroku
 
 To git@heroku.com:still-tor-8707.git
  * [new branch]      master -> master
@@ -50,7 +43,7 @@ $ npm install
 Then run:
 
 ```
-$ node local.js -s still-tor-8707.herokuapp.com -l 1080 -m rc4 -k foobar -r 80
+$ node local.js -s kucing-garong.herokuapp.com -l 1080 -m rc4 -k foobar -r 80
 server listening at { address: '127.0.0.1', family: 'IPv4', port: 1080 }
 ```
 
